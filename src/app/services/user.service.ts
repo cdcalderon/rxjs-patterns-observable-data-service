@@ -21,12 +21,11 @@ export class UserService {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
-    this.http.post('/api/login', {email, password})
+    return this.http.post('/api/login', {email, password})
       .map(res => res.json())
-      .subscribe(
-        user => this.subject.next(user),
-        () => alert('Login Failed')
-      );
+      .do(user => console.log(user))
+      .do(user => this.subject.next(user))
+      .publishLast().refCount()
   }
 
 }
