@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs/';
 import {User} from '../shared/model/user';
 import {Http} from '@angular/http';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 export const UNKNOWN_USER: User = {
   firstName: 'Unknown'
@@ -10,7 +11,9 @@ export const UNKNOWN_USER: User = {
 @Injectable()
 export class UserService {
 
-  user$: Observable<User> = Observable.of(UNKNOWN_USER);
+  private subject = new BehaviorSubject(UNKNOWN_USER);
+
+  user$: Observable<User> = this.subject.asObservable();
 
   constructor(private http: Http) { }
 
@@ -19,10 +22,9 @@ export class UserService {
     headers.append('Content-Type', 'application/json');
 
     this.http.post('/api/login', {email, password})
+      .map(res => res.json())
       .subscribe(
-        user => {
-
-        },
+        user => this.subject.next(user),
         () => alert('Login Failed')
       );
   }
